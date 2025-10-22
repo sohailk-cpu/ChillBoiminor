@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>ChillBoi Miner — Leaderboard</title>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { color: #0a6; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 8px; border: 1px solid #ddd; text-align:left; }
+  </style>
+</head>
+<body>
+  <h1>ChillBoi Miner — Leaderboard</h1>
+  <p>Mine daily via our Telegram bot: <a href="https://t.me/YOUR_BOT_USERNAME">Open Bot</a></p>
+  <table id="board">
+    <thead><tr><th>#</th><th>User</th><th>Balance</th><th>Invites</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    // TODO: replace with your Firebase config (from project settings -> web app)
+    const firebaseConfig = {
+      apiKey: "REPLACE_ME",
+      authDomain: "REPLACE_ME",
+      projectId: "REPLACE_ME",
+      // etc
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function loadLeaderboard(){
+      const q = await db.collection('users').orderBy('balance', 'desc').limit(20).get();
+      const tbody = document.querySelector('#board tbody');
+      tbody.innerHTML = '';
+      let i = 1;
+      q.forEach(doc => {
+        const d = doc.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i}</td><td>@${d.username || 'unknown'}</td><td>${d.balance || 0}</td><td>${d.invite_count || 0}</td>`;
+        tbody.appendChild(tr);
+        i++;
+      });
+    }
+    loadLeaderboard();
+    setInterval(loadLeaderboard, 15000); // refresh every 15s
+  </script>
+</body>
+</html>
