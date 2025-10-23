@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChillBoi Pro Mining Dashboard</title>
-    <!-- Font Awesome for icons (as used in the provided template) -->
+    <!-- Font Awesome for icons (for modern app look) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    <!-- Custom CSS (Merged from user's template and optimized for full screen) -->
+    <!-- Custom CSS (Optimized for Zero Scrolling and Dark Futuristic Theme) -->
     <style>
         /* BASE STYLES */
         body {
@@ -15,18 +15,19 @@
             background-color: #121212;
             color: #E0E0E0;
             margin: 0;
-            min-height: 100vh;
+            height: 100vh; 
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align content to top */
+            align-items: flex-start; 
             position: relative;
+            overflow: hidden; /* Prevent body scrolling */
         }
 
-        /* Responsive Container (Replaces fixed phone mockup) */
+        /* Responsive Container (Main App Frame) */
         .app-container {
             width: 100%;
-            max-width: 450px; /* Maximize readability on desktop */
-            min-height: 100vh;
+            max-width: 450px; 
+            height: 100%; 
             background-color: #121212;
             box-shadow: 0 0 40px rgba(0, 255, 100, 0.1);
             position: relative;
@@ -50,141 +51,170 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 20px;
+            padding: 10px 20px; 
             color: #E0E0E0;
             font-size: 18px;
             font-weight: bold;
             background-color: #121212;
+            flex-shrink: 0; 
         }
 
-        /* PAGE CONTENT */
+        /* PAGE CONTENT WRAPPER */
         .content {
             flex-grow: 1;
-            padding: 0 20px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            padding: 0; 
+            overflow: hidden; /* Prevent scrolling on content wrapper */
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            padding-top: 15px;
         }
-        .page { display: none; }
-        .page.active { display: flex; flex-direction: column; gap: 15px; }
-
+        
+        /* INDIVIDUAL PAGES */
+        .page { display: none; height: 100%; padding: 0 20px; }
+        .page.active { 
+            display: flex !important; 
+            flex-direction: column; 
+            gap: 8px; 
+            height: 100%;
+            padding: 8px 15px; 
+            overflow-y: auto; /* Scrolling only for non-dashboard pages */
+            -webkit-overflow-scrolling: touch; 
+        } 
+        /* Dashboard specific: Force Flex, No Scrolling */
+        #dashboard-page.active {
+            overflow: hidden !important; 
+            display: flex !important;
+            flex-direction: column; 
+        }
 
         /* CARDS */
         .card {
             background-color: #202020;
-            border-radius: 15px;
-            padding: 20px;
+            border-radius: 12px; 
+            padding: 12px; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             border: 1px solid #333;
+            flex-shrink: 0;
+            margin-bottom: 5px; /* Reduced margin */
         }
-
-        /* DASHBOARD SPECIFIC STYLING (User's Template) */
-        .hash-rate h3 { font-size: 16px; color: #888; margin: 0; }
-        .hash-rate .value { font-size: 32px; font-weight: bold; color: #00FF6A; }
-        .earned-coins { font-size: 14px; color: #AAA; }
+        
+        /* HASH RATE CARD OPTIMIZATION */
+        .hash-rate { display: flex; justify-content: space-between; align-items: center; }
+        .hash-rate h3 { font-size: 14px; color: #888; margin: 0; }
+        .hash-rate .value { font-size: 26px; font-weight: bold; color: #00FF6A; }
+        .earned-coins { font-size: 13px; color: #AAA; }
         .earned-coins strong { color: #E0E0E0; }
         
-        /* Mining Button (Removed separate button, but keeping CSS for reference) */
-        .mining-button-style {
-            background-color: #00FF6A;
-            color: #121212;
-            font-weight: bold;
-            padding: 15px;
-            border-radius: 10px;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(0, 255, 106, 0.5);
-            transition: transform 0.1s ease-in-out;
+        /* COIN ICON FIX */
+        .coin-icon { 
+            width: 25px; height: 25px; font-size: 14px; 
+            background-color: #00FF6A; color: #121212; 
+            border-radius: 5px; display: flex; justify-content: center; align-items: center;
+            font-weight: bold; flex-shrink: 0; margin-left: 10px;
         }
         
-        /* MINING ANIMATION BLOCK */
+        /* MINING ANIMATION BLOCK OPTIMIZATION */
         .mining-animation {
-            height: 180px;
+            flex-grow: 1; /* Key for zero-scrolling */
+            height: auto; 
             background-color: #1A1A1A;
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
             overflow: hidden;
             border: 1px solid #00FF6A44;
+            padding: 10px; 
         }
         .mining-animation .coin-icon-placeholder {
-            font-size: 60px;
+            font-size: 45px; 
             color: #00FF6A;
-            text-shadow: 0 0 15px #00FF6A;
+            text-shadow: 0 0 10px #00FF6A;
             animation: pulse 1.5s infinite alternate;
         }
-        @keyframes pulse { 
-            from { transform: scale(1); opacity: 0.8; } 
-            to { transform: scale(1.1); opacity: 1; } 
-        }
 
-        /* NEXT BLOCK TIMER (New Clickable Core) */
+        /* NEXT BLOCK TIMER OPTIMIZATION (THE BUTTON) */
+        .next-block { text-align: center; }
         .next-block .mining-core {
-            /* Acts as the main button area */
-            cursor: pointer;
-            width: 150px;
-            height: 150px;
+            width: 130px; /* Increased size for tap target */
+            height: 130px; 
+            margin: 5px auto; 
+            border: 4px solid rgba(0, 255, 100, 0.3); 
             border-radius: 50%;
-            border: 8px solid rgba(0, 255, 100, 0.3); /* Default running state */
-            margin: 20px auto;
-            position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: border-color 0.3s, transform 0.1s ease-in-out; 
-            background-color: #1A1A1A; /* Inner circle background */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s;
+            background-color: rgba(0, 0, 0, 0.2);
         }
-        .next-block .mining-core:active {
-            transform: scale(0.95);
-        }
-
-        .next-block .timer-text { font-size: 14px; color: #888; margin: 0; }
-        .next-block .countdown { font-size: 28px; font-weight: bold; color: #E0E0E0; }
-        .next-block .reward strong { color: #00FF6A; }
+        .next-block .mining-core:hover { transform: scale(1.05); }
+        .next-block .countdown { font-size: 18px; font-weight: bold; } 
+        .next-block .timer-text { font-size: 10px; } 
 
 
-        /* BOTTOM NAVIGATION BAR */
+        /* BOTTOM NAVIGATION BAR (Fixed to viewport) */
         .navigation-bar {
-            display: flex;
+            display: flex !important; 
             justify-content: space-around;
             background-color: #202020;
             padding: 10px 0;
             border-top: 1px solid #333;
-            position: fixed;
+            position: fixed; 
             bottom: 0;
             width: 100%;
             max-width: 450px; 
             box-sizing: border-box;
             z-index: 100;
         }
-        .navigation-bar .nav-item {
-            color: #888;
-            font-size: 12px;
-            transition: color 0.3s;
-        }
+        .navigation-bar .nav-item { color: #888; font-size: 12px; transition: color 0.3s; }
         .navigation-bar .nav-item i { font-size: 20px; margin-bottom: 3px; }
         .navigation-bar .nav-item.active { color: #00FF6A; }
+        
+        /* LOADING SCREEN STYLES */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #121212; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 200; 
+            transition: opacity 0.5s;
+        }
+        .spinner {
+            border: 5px solid rgba(0, 255, 100, 0.3); border-top: 5px solid #00FF6A;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     
-    <!-- Firebase SDK Imports (Required for FREE backend) -->
+    <!-- LOADING OVERLAY -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; color: #00FF6A;">Initializing Miner...</p>
+    </div>
+
+    <!-- Firebase SDK Imports (The Backend/Data Logic) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, linkWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
+        // --- GLOBAL CONFIGURATION (Firebase IDs) ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'chillboi-miner-app';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+       const firebaseConfig = {
+  apiKey: "AIzaSyCTqHlJP7OxzGKmXMfvCuCWCg-djOrt9tA",
+  authDomain: "chillboi-5963f.firebaseapp.com",
+  projectId: "chillboi-5963f",
+  storageBucket: "chillboi-5963f.firebasestorage.app",
+  messagingSenderId: "637966350679",
+  appId: "1:637966350679:web:46ba2b5ff21a75d5846612"
+};
+        
+        let initialAuthToken = null;
+        if (typeof __initial_auth_token !== 'undefined') {
+            initialAuthToken = __initial_auth_token;
+        }
 
         let db, auth, userId = null;
 
@@ -241,6 +271,9 @@
             window.db = db;
             
             onAuthStateChanged(auth, async (user) => {
+                const navBar = document.querySelector('.navigation-bar');
+                const loadingOverlay = document.getElementById('loading-overlay'); 
+                
                 if (user) {
                     userId = user.uid;
                 } else {
@@ -252,9 +285,13 @@
                         }
                     } catch (error) {
                         console.error("Auth error:", error);
-                        return;
+                        // If auth fails, we still hide overlay to show broken UI
+                        loadingOverlay.style.opacity = '0';
+                        setTimeout(() => loadingOverlay.style.display = 'none', 500); 
+                        return; 
                     }
                 }
+                
                 if (userId) {
                     window.userId = userId;
                     const urlParams = new URLSearchParams(window.location.search);
@@ -262,6 +299,12 @@
                     
                     await initializeUser(userId, db, referrerId);
                     setupDataListener(userId, db);
+                    
+                    // Hide Loading Screen and Show Nav Bar and App Content
+                    loadingOverlay.style.opacity = '0';
+                    setTimeout(() => loadingOverlay.style.display = 'none', 500);
+                    navBar.style.display = 'flex'; 
+                    document.getElementById('dashboard-page').classList.add('active'); 
                 }
             });
         }
@@ -270,6 +313,7 @@
         window.signInWithGoogle = async function() {
             const provider = new GoogleAuthProvider();
             try {
+                // Link Google account to the current anonymous user
                 await linkWithPopup(auth.currentUser, provider);
                 showToast('Account successfully linked with Google!', 'background-color: #00FF6A; color: #121212;');
                 window.showPage('settings');
@@ -310,12 +354,11 @@
                 // Calculate actual time passed since last mine
                 const timePassed = now - lastMineTime;
                 
-                if (timePassed >= 0) { // Check if the session is active or ready to collect
+                if (timePassed >= COOLDOWN_MS) { // Only allow collection if session is fully complete (24h)
+                    // Earning calculation: Amount earned since last mine (capped at 24h)
+                    const sessionDuration = COOLDOWN_MS;
                     const dailyRate = calculateDailyRate(currentData.referrals);
                     
-                    // Earning calculation: Amount earned since last mine (capped at 24h)
-                    const sessionDuration = Math.min(timePassed, COOLDOWN_MS);
-                    // earning calculation is crucial here
                     const earning = dailyRate * (sessionDuration / COOLDOWN_MS); 
                     
                     const newBalance = (currentData.balance || 0) + earning;
@@ -331,7 +374,7 @@
                     
                     showToast(`+${earning.toFixed(4)} CHILL collected!`, 'background-color: #00B386;');
                 } else {
-                     showToast('Session error, try again.', 'background-color: #D32F2F;');
+                     showToast('Mining is active, wait for the timer!', 'background-color: #FFC107;');
                 }
             } catch (e) {
                 console.error("Mining failed:", e);
@@ -377,6 +420,7 @@
                     document.getElementById('refCount').textContent = data.referrals;
                     document.getElementById('refBoost').textContent = `+${(data.referrals * REFERRAL_BOOST).toFixed(2)} CHILL/Day`;
                 } else {
+                    // Initialize if user document is missing (should not happen after initializeUser)
                     updateUI({ balance: 0, lastMineTime: Date.now(), referrals: 0 });
                 }
             });
@@ -439,13 +483,10 @@
                     miningCore.onclick = () => showToast("Mining is active, wait for the timer!", 'background-color: #FFC107;');
                     miningCore.style.cursor = 'default';
                     
-                    // Timer calculation (H:M:S) - This was causing the error
+                    // Timer calculation (H:M:S) 
                     const hours = Math.floor(timeLeftToComplete / (1000 * 60 * 60));
                     const minutes = Math.floor((timeLeftToComplete % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeLeftToComplete % (1000 * 60)) / 1000); // FIXED
-                    
-                    // Commented out timer display as per user's request to show earnings instead
-                    // document.getElementById('cooldownDetails').textContent = `Time Left: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    const seconds = Math.floor((timeLeftToComplete % (1000 * 60)) / 1000); 
                     
                     // Continue animation loop for real-time display
                     animationFrameId = requestAnimationFrame(render);
@@ -603,7 +644,7 @@
         </div>
 
         <!-- Bottom Navigation Bar (Fixed) -->
-        <div class="navigation-bar">
+        <div class="navigation-bar" style="display:none;">
             <button id="dashboardNav" onclick="window.showPage('dashboard')" class="nav-item active">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
