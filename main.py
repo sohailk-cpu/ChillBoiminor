@@ -4,7 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 # 🔥 Firebase Setup
-cred = credentials.Certificate("firebase.json")
+cred = credentials.Certificate("chillboi-miner-firebase-adminsdk-fbsvc-c1e709c7d7.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -54,3 +54,4 @@ app.add_handler(CommandHandler("mine", mine))
 app.add_handler(CommandHandler("balance", balance))
 
 app.run_polling()
+
