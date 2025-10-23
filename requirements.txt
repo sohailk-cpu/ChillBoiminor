@@ -1,3 +1,2 @@
-python-telegram-bot==13.17
-firebase-admin==6.0.0
-pytz
+python-telegram-bot==20.3
+firebase-admin==6.3.0
