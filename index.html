@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChillBoi Pro Mining Dashboard</title>
+    <!-- Font Awesome for icons (as used in the provided template) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Custom CSS (Merged from user's template and optimized for full screen) -->
+    <style>
+        /* BASE STYLES */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #E0E0E0;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align content to top */
+            position: relative;
+        }
+
+        /* Responsive Container (Replaces fixed phone mockup) */
+        .app-container {
+            width: 100%;
+            max-width: 450px; /* Maximize readability on desktop */
+            min-height: 100vh;
+            background-color: #121212;
+            box-shadow: 0 0 40px rgba(0, 255, 100, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 70px; /* Space for fixed bottom bar */
+        }
+        
+        /* Neon Glow Effect */
+        .neon-glow {
+            background: radial-gradient(circle at center, rgba(30, 255, 100, 0.1) 0%, rgba(18, 18, 18, 1) 70%);
+            opacity: 0.2;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            color: #E0E0E0;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #121212;
+        }
+
+        /* PAGE CONTENT */
+        .content {
+            flex-grow: 1;
+            padding: 0 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-top: 15px;
+        }
+        .page { display: none; }
+        .page.active { display: flex; flex-direction: column; gap: 15px; }
+
+
+        /* CARDS */
+        .card {
+            background-color: #202020;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+        }
+
+        /* DASHBOARD SPECIFIC STYLING (User's Template) */
+        .hash-rate h3 { font-size: 16px; color: #888; margin: 0; }
+        .hash-rate .value { font-size: 32px; font-weight: bold; color: #00FF6A; }
+        .earned-coins { font-size: 14px; color: #AAA; }
+        .earned-coins strong { color: #E0E0E0; }
+        
+        /* Mining Button (Removed separate button, but keeping CSS for reference) */
+        .mining-button-style {
+            background-color: #00FF6A;
+            color: #121212;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 255, 106, 0.5);
+            transition: transform 0.1s ease-in-out;
+        }
+        
+        /* MINING ANIMATION BLOCK */
+        .mining-animation {
+            height: 180px;
+            background-color: #1A1A1A;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #00FF6A44;
+        }
+        .mining-animation .coin-icon-placeholder {
+            font-size: 60px;
+            color: #00FF6A;
+            text-shadow: 0 0 15px #00FF6A;
+            animation: pulse 1.5s infinite alternate;
+        }
+        @keyframes pulse { 
+            from { transform: scale(1); opacity: 0.8; } 
+            to { transform: scale(1.1); opacity: 1; } 
+        }
+
+        /* NEXT BLOCK TIMER (New Clickable Core) */
+        .next-block .mining-core {
+            /* Acts as the main button area */
+            cursor: pointer;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 8px solid rgba(0, 255, 100, 0.3); /* Default running state */
+            margin: 20px auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: border-color 0.3s, transform 0.1s ease-in-out; 
+            background-color: #1A1A1A; /* Inner circle background */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .next-block .mining-core:active {
+            transform: scale(0.95);
+        }
+
+        .next-block .timer-text { font-size: 14px; color: #888; margin: 0; }
+        .next-block .countdown { font-size: 28px; font-weight: bold; color: #E0E0E0; }
+        .next-block .reward strong { color: #00FF6A; }
+
+
+        /* BOTTOM NAVIGATION BAR */
+        .navigation-bar {
+            display: flex;
+            justify-content: space-around;
+            background-color: #202020;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 450px; 
+            box-sizing: border-box;
+            z-index: 100;
+        }
+        .navigation-bar .nav-item {
+            color: #888;
+            font-size: 12px;
+            transition: color 0.3s;
+        }
+        .navigation-bar .nav-item i { font-size: 20px; margin-bottom: 3px; }
+        .navigation-bar .nav-item.active { color: #00FF6A; }
+    </style>
+</head>
+<body>
+    
+    <!-- Firebase SDK Imports (Required for FREE backend) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, linkWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'chillboi-miner-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth, userId = null;
+
+        // --- Core App Setup ---
+        window.showPage = function(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            const activePage = document.getElementById(pageId + '-page');
+            if(activePage) activePage.classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const activeNav = document.getElementById(pageId + 'Nav');
+            if(activeNav) activeNav.classList.add('active');
+            
+            // Update Wallet/Settings pages on view
+            if(pageId === 'settings' && userId) {
+                const providerId = auth.currentUser.providerData.length > 0 ? auth.currentUser.providerData[0].providerId : 'anonymous';
+                document.getElementById('profileUserId').textContent = userId;
+                document.getElementById('profileUsername').textContent = auth.currentUser.displayName || "Anonymous Miner";
+                 
+                const linkBtn = document.getElementById('linkGoogleAccountBtn');
+                if (linkBtn) {
+                    if (providerId === 'google.com') {
+                        linkBtn.textContent = 'Account Linked (Google)';
+                        linkBtn.disabled = true;
+                        linkBtn.style.backgroundColor = '#3d3d3d'; // Dark gray for disabled
+                    } else {
+                        linkBtn.textContent = 'Link Google Account (Save Data)';
+                        linkBtn.disabled = false;
+                        linkBtn.style.backgroundColor = '#00b386'; // Teal for active
+                    }
+                }
+            }
+             if(pageId === 'wallet' && window.userBalance !== undefined) {
+                document.getElementById('walletBalance').textContent = `${window.userBalance.toFixed(2)} CHILL`;
+                document.getElementById('walletAddressDisplay').textContent = window.userId ? `0x${window.userId.substring(0, 10)}...` : 'Generating Address...';
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.showPage('dashboard'); // Default page
+        });
+        
+        if (!firebaseConfig) {
+            console.error("Firebase Configuration is missing.");
+            document.getElementById('app-container').innerHTML = `<div class="p-8 text-center" style="color:red;">Firebase कॉन्फ़िगरेशन उपलब्ध नहीं है।</div>`;
+        } else {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            window.db = db;
+            
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                } else {
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Auth error:", error);
+                        return;
+                    }
+                }
+                if (userId) {
+                    window.userId = userId;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const referrerId = urlParams.get('ref');
+                    
+                    await initializeUser(userId, db, referrerId);
+                    setupDataListener(userId, db);
+                }
+            });
+        }
+        
+        // --- Google Sign-in Functionality ---
+        window.signInWithGoogle = async function() {
+            const provider = new GoogleAuthProvider();
+            try {
+                await linkWithPopup(auth.currentUser, provider);
+                showToast('Account successfully linked with Google!', 'background-color: #00FF6A; color: #121212;');
+                window.showPage('settings');
+            } catch (error) {
+                console.error("Google linking failed:", error);
+                
+                let errorMessage = 'Linking failed.';
+                if (error.code === 'auth/credential-already-in-use') {
+                    errorMessage = 'This Google account is already being used by another miner!';
+                }
+                showToast(errorMessage, 'background-color: #D32F2F;');
+            }
+        }
+
+        // --- Core Mining Logic & Firebase Operations ---
+        const BASE_MINE_RATE = 1.0; 
+        const REFERRAL_BOOST = 0.25; 
+        const COOLDOWN_MS = 24 * 60 * 60 * 1000;
+        
+        function calculateDailyRate(referrals) {
+            return BASE_MINE_RATE + (referrals * REFERRAL_BOOST);
+        }
+        function calculateHashRate(dailyRate) {
+            // Hash rate is proportional to the daily rate
+            return 500 + (dailyRate - BASE_MINE_RATE) / REFERRAL_BOOST * 50; 
+        }
+
+        // Function to handle collecting the earned coins and resetting the timer
+        async function handleMining(currentData) {
+            if (!userId) return;
+            const miningCore = document.getElementById('miningCore');
+            miningCore.style.pointerEvents = 'none'; // Disable click during process
+            
+            try {
+                const now = Date.now();
+                const lastMineTime = currentData.lastMineTime || 0;
+                
+                // Calculate actual time passed since last mine
+                const timePassed = now - lastMineTime;
+                
+                if (timePassed >= 0) { // Check if the session is active or ready to collect
+                    const dailyRate = calculateDailyRate(currentData.referrals);
+                    
+                    // Earning calculation: Amount earned since last mine (capped at 24h)
+                    const sessionDuration = Math.min(timePassed, COOLDOWN_MS);
+                    // earning calculation is crucial here
+                    const earning = dailyRate * (sessionDuration / COOLDOWN_MS); 
+                    
+                    const newBalance = (currentData.balance || 0) + earning;
+
+                    const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/miner_data`, 'profile');
+                    await setDoc(userDocRef, {
+                        balance: newBalance,
+                        lastMineTime: now, // Reset time to now
+                        referrals: currentData.referrals,
+                        referrerId: currentData.referrerId || null, 
+                        username: auth.currentUser.displayName || "Anonymous"
+                    }, { merge: true });
+                    
+                    showToast(`+${earning.toFixed(4)} CHILL collected!`, 'background-color: #00B386;');
+                } else {
+                     showToast('Session error, try again.', 'background-color: #D32F2F;');
+                }
+            } catch (e) {
+                console.error("Mining failed:", e);
+                showToast('Mining failed: Server error.', 'background-color: #D32F2F;');
+            } finally {
+                miningCore.style.pointerEvents = 'auto'; // Re-enable click
+            }
+        }
+        
+        async function initializeUser(uid, db, referrerId) {
+             const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/miner_data`, 'profile');
+             const userDoc = await getDoc(userDocRef);
+             
+             if (!userDoc.exists()) {
+                 const initialData = {
+                     balance: 0.0,
+                     lastMineTime: 0, // Set to 0 so new users see COLLECT NOW immediately
+                     referrals: 0,
+                     username: auth.currentUser.displayName || "Anonymous",
+                     referrerId: referrerId || null
+                 };
+                 await setDoc(userDocRef, initialData);
+
+                 if (referrerId && referrerId !== uid) {
+                     const referrerDocRef = doc(db, `artifacts/${appId}/users/${referrerId}/miner_data`, 'profile');
+                     const referrerDoc = await getDoc(referrerDocRef);
+                     if (referrerDoc.exists()) {
+                        const currentReferrals = referrerDoc.data().referrals || 0;
+                        await setDoc(referrerDocRef, { referrals: currentReferrals + 1 }, { merge: true });
+                        showToast(`Referral added to pool!`, 'background-color: #00B386;');
+                     }
+                 }
+             }
+        }
+
+        function setupDataListener(uid, db) {
+            const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/miner_data`, 'profile');
+            onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    window.userBalance = data.balance;
+                    updateUI(data);
+                    document.getElementById('refCount').textContent = data.referrals;
+                    document.getElementById('refBoost').textContent = `+${(data.referrals * REFERRAL_BOOST).toFixed(2)} CHILL/Day`;
+                } else {
+                    updateUI({ balance: 0, lastMineTime: Date.now(), referrals: 0 });
+                }
+            });
+        }
+        
+        let animationFrameId = null; // For performance optimization
+
+        function updateUI(data) {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            
+            const render = () => {
+                const balanceDisplay = document.getElementById('earnedCoinsDisplay');
+                const hashRateDisplay = document.getElementById('hashRateDisplay');
+                const nextBlockTimer = document.getElementById('countdownTimer');
+                const timerStatusText = document.getElementById('timerStatusText');
+                const miningCore = document.getElementById('miningCore');
+                const currentReward = document.getElementById('currentReward');
+
+                const dailyRate = calculateDailyRate(data.referrals);
+                const hashRate = calculateHashRate(dailyRate);
+                
+                // Calculate UNCLAIMED balance based on time passed
+                const now = Date.now();
+                const lastMineTime = data.lastMineTime || 0;
+                const timePassed = now - lastMineTime;
+                
+                // Time until the session is complete (24h)
+                const timeLeftToComplete = COOLDOWN_MS - timePassed; 
+
+                // Unclaimed Earning (capped at 100% session time)
+                const sessionProgress = Math.min(timePassed, COOLDOWN_MS);
+                const unclaimedEarning = dailyRate * (sessionProgress / COOLDOWN_MS);
+
+                // Update UI elements
+                // Base + Unclaimed (for Wallet display)
+                const totalDisplay = (data.balance || 0) + unclaimedEarning;
+                balanceDisplay.textContent = `${totalDisplay.toFixed(4)}`; 
+                
+                hashRateDisplay.textContent = `${hashRate.toFixed(0)} MH/s`;
+                currentReward.textContent = `${dailyRate.toFixed(2)} CHILL`; 
+                
+                // --- Display Cooldown/Ready State ---
+                if (timePassed >= COOLDOWN_MS) {
+                    // READY STATE
+                    timerStatusText.textContent = "COLLECT READY";
+                    nextBlockTimer.textContent = "COLLECT NOW";
+                    nextBlockTimer.style.color = '#00FF6A'; // Neon Green
+                    miningCore.style.borderColor = '#00FF6A'; // Neon Green Border
+                    miningCore.onclick = () => handleMining(data);
+                    miningCore.style.cursor = 'pointer'; 
+                } else {
+                    // MINING ACTIVE STATE
+                    timerStatusText.textContent = "NEXT BLOCK";
+                    miningCore.style.borderColor = 'rgba(0, 255, 100, 0.3)'; // Faded Border
+                    nextBlockTimer.style.color = '#E0E0E0'; // White/Gray Timer
+                    // Show collected amount as the main number in the circle
+                    nextBlockTimer.textContent = `${unclaimedEarning.toFixed(4)} CHILL`; 
+                    miningCore.onclick = () => showToast("Mining is active, wait for the timer!", 'background-color: #FFC107;');
+                    miningCore.style.cursor = 'default';
+                    
+                    // Timer calculation (H:M:S) - This was causing the error
+                    const hours = Math.floor(timeLeftToComplete / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeftToComplete % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeftToComplete % (1000 * 60)) / 1000); // FIXED
+                    
+                    // Commented out timer display as per user's request to show earnings instead
+                    // document.getElementById('cooldownDetails').textContent = `Time Left: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    
+                    // Continue animation loop for real-time display
+                    animationFrameId = requestAnimationFrame(render);
+                }
+                
+                if (window.userId) { 
+                    const inviteLink = `https://yourwebsite.com?ref=${window.userId}`; 
+                    document.getElementById('inviteLink').textContent = inviteLink;
+                }
+            };
+
+            // Start the render loop
+            render();
+        }
+
+        function showToast(message, color) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `fixed bottom-20 left-1/2 transform -translate-x-1/2 p-3 rounded-xl shadow-lg z-50 transition-opacity duration-300`;
+            toast.style.backgroundColor = color;
+            toast.style.opacity = '1';
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 3000);
+        }
+    </script>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        <div class="neon-glow"></div>
+        
+        <!-- Status Bar Mockup -->
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </span>
+        </div>
+        
+        <!-- Header -->
+        <div class="header">
+            <i class="fas fa-chevron-left back-arrow"></i>
+            <span>MEME COIN MINING</span>
+            <i class="fas fa-ellipsis-v options"></i>
+        </div>
+
+        <!-- Page Content Wrapper -->
+        <div class="content">
+            
+            <!-- 1. Dashboard Page (Active by default) -->
+            <div id="dashboard-page" class="page active">
+                
+                <div class="card">
+                    <div class="hash-rate">
+                        <h3>Current Hash Rate:</h3>
+                        <!-- Coin Icon Placeholder (Uses CHILL initial) -->
+                        <div class="coin-icon" style="background-color:#00FF6A;">C</div> 
+                    </div>
+                    <div class="hash-rate">
+                        <span class="value" id="hashRateDisplay">1,234 MH/s</span>
+                    </div>
+                    <div class="earned-coins">
+                        Total Balance: <strong id="earnedCoinsDisplay">0.0000</strong> CHILL
+                    </div>
+                </div>
+
+                <div class="card mining-animation">
+                    <div class="coin-icon-placeholder"><i class="fas fa-cube"></i></div>
+                </div>
+
+                <div class="card next-block">
+                    <!-- The timer circle is now the clickable core element -->
+                    <div id="miningCore" class="mining-core">
+                        <!-- Status Text will be 'Next Block' or 'COLLECT READY' -->
+                        <div class="timer-text" id="timerStatusText">Loading...</div>
+                        <!-- Countdown will be Time or 'COLLECT NOW' -->
+                        <div class="countdown" id="countdownTimer">--:--:--</div>
+                    </div>
+                    <div class="reward" style="text-align: center; margin-top: 10px;">
+                        Reward: <strong id="currentReward">1.00 CHILL</strong>
+                    </div>
+                    <!-- REMOVED separate button -->
+                </div>
+                
+            </div>
+
+            <!-- 2. Pools Page (Referral) -->
+            <div id="pools-page" class="page">
+                <h2 class="text-xl font-bold" style="color:#00FF6A; margin-top: 10px;">Pools / Referral Team</h2>
+                <div class="card">
+                    <h3 style="color:#FFF;">Your Pool Status:</h3>
+                    <div class="hash-rate" style="margin-top:10px;">
+                        <p style="color:#AAA;">Total Pool Members:</p>
+                        <span class="value" id="refCount">0</span>
+                    </div>
+                    <div class="hash-rate">
+                        <p style="color:#AAA;">Daily Rate Boost:</p>
+                        <span class="value" id="refBoost">+0.00 CHILL/Day</span>
+                    </div>
+                </div>
+                
+                 <div class="card">
+                    <h3 style="color:#FFF;">Share Invite Link:</h3>
+                     <p style="font-size: 14px; color: #AAA; margin-bottom: 10px;">Copy and share your unique link to boost your Hash Rate!</p>
+                    <div class="flex items-center space-x-2 bg-gray-800 p-3 rounded-xl">
+                        <span id="inviteLink" class="text-xs truncate" style="color:#FFD700;">Loading Invite Link...</span>
+                        <button onclick="navigator.clipboard.writeText(document.getElementById('inviteLink').textContent); showToast('Link copied!', 'background-color:#00FF6A; color:#121212;');" class="flex-shrink-0 p-1 rounded-lg" style="background-color:#3d3d3d;">
+                            <i class="fas fa-copy" style="color:white;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Wallet Page -->
+            <div id="wallet-page" class="page">
+                <h2 class="text-xl font-bold" style="color:#00FF6A; margin-top: 10px;">Wallet Overview</h2>
+                 <div class="card next-block" style="text-align: center;">
+                    <p style="color:#AAA;">Total Available CHILL</p>
+                    <p class="countdown" id="walletBalance" style="font-size: 36px;">-- CHILL</p>
+                    
+                    <div style="margin-top: 20px; padding: 10px; border: 1px dashed #333; border-radius: 10px;">
+                        <p style="font-size: 12px; color: #888;">Miner Wallet ID:</p>
+                        <p id="walletAddressDisplay" style="font-size: 14px; color:#FFD700; word-break: break-all;">Generating Address...</p>
+                    </div>
+
+                    <button class="w-full mt-4" style="background-color:#3d3d3d; color:#E0E0E0; padding: 10px; border-radius: 10px;" onclick="showToast('Withdrawals open on Mainnet Launch!', 'bg-blue-500')">
+                        WITHDRAW (Phase 2)
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. Settings/Profile Page -->
+            <div id="settings-page" class="page">
+                <h2 class="text-xl font-bold" style="color:#00FF6A; margin-top: 10px;">Settings & Profile</h2>
+                <div class="card">
+                     <h3 style="color:#FFF; margin-bottom: 10px;">Account Security:</h3>
+                     <button id="linkGoogleAccountBtn" onclick="signInWithGoogle()" style="width: 100%; padding: 10px; border-radius: 10px; font-weight: bold; margin-bottom: 10px;">
+                        Link Google Account (Save Data)
+                    </button>
+                    <p style="font-size: 11px; color: #888; text-align: center;">Link your Google account to ensure your CHILL balance is never lost.</p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color:#FFF; margin-bottom: 10px;">Miner Details:</h3>
+                     <div style="font-size: 14px;">
+                        <p>Username: <span id="profileUsername" style="float:right; color:#00FF6A;">Loading...</span></p>
+                        <p style="margin-top: 5px;">Miner ID (UID): <span id="profileUserId" style="float:right; font-size: 11px; color:#FFD700; max-width: 60%; overflow: hidden; text-overflow: ellipsis;">Loading...</span></p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Bottom Navigation Bar (Fixed) -->
+        <div class="navigation-bar">
+            <button id="dashboardNav" onclick="window.showPage('dashboard')" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </button>
+            <button id="poolsNav" onclick="window.showPage('pools')" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Pools</span>
+            </button>
+            <button id="walletNav" onclick="window.showPage('wallet')" class="nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Wallet</span>
+            </button>
+            <button id="settingsNav" onclick="window.showPage('settings')" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+        </div>
+        
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 p-3 rounded-xl shadow-lg z-50 transition-opacity duration-300" style="opacity:0; color:white;"></div>
+
+</body>
+</html>
